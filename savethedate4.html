@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Save the Date: Kashish & Prerna</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Great+Vibes&family=Lato:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fcfbf7;
+            /* Subtle floral pattern background */
+            background-image: radial-gradient(#d4af37 0.5px, transparent 0.5px), radial-gradient(#d4af37 0.5px, #fcfbf7 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            overflow: hidden;
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Floating background particles */
+        .bg-particle {
+            position: absolute;
+            color: rgba(212, 175, 55, 0.1);
+            font-size: 20px;
+            animation: float 10s infinite linear;
+            z-index: 0;
+        }
+        @keyframes float {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.5; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Main Card */
+        .floral-frame {
+            position: relative;
+            z-index: 10;
+            width: 92%;
+            max-width: 400px;
+            height: 92vh;
+            max-height: 750px;
+            border: double 5px #d4af37;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            /* Distribute space: Title at top, Heart middle, Message bottom */
+            justify-content: space-between; 
+        }
+
+        /* Corners */
+        .corner {
+            position: absolute;
+            font-size: 28px;
+            color: #d4af37;
+            line-height: 1;
+        }
+        .tl { top: 10px; left: 10px; }
+        .tr { top: 10px; right: 10px; transform: scaleX(-1); }
+        .bl { bottom: 10px; left: 10px; transform: scaleY(-1); }
+        .br { bottom: 10px; right: 10px; transform: scale(-1); }
+
+        .header-section {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .title-text {
+            color: #777;
+            font-size: 14px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        /* --- HEART CONTAINER --- */
+        .heart-wrapper {
+            position: relative;
+            /* INCREASED SIZE HERE */
+            width: 320px; 
+            height: 290px;
+            margin: 10px auto;
+            /* Center visual alignment */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .heart-shape {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            /* The masking shape */
+            clip-path: path("M160 20 C80 -50 -70 90 160 290 C390 90 240 -50 160 20 Z");
+            -webkit-clip-path: path("M160 20 C80 -50 -70 90 160 290 C390 90 240 -50 160 20 Z");
+        }
+
+        /* The Reveal Layer (Inside Heart) */
+        .hidden-content {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 30%, #ffffff, #fff0f5);
+            /* Inner shadow for "Cutout" effect */
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.15); 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* CRITICAL: We align to START, then push down with padding.
+               This ensures venue text stays high up */
+            justify-content: flex-start; 
+            padding-top: 55px; 
+            box-sizing: border-box;
+            z-index: 1;
+        }
+
+        .names-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .name {
+            font-family: 'Great Vibes', cursive;
+            font-size: 38px;
+            color: #d6336c; /* Vibrant Pink/Red */
+            line-height: 0.9;
+            text-shadow: 1px 1px 0 #fff;
+        }
+        
+        .ampersand {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            color: #c5a02e;
+            margin: 2px 0;
+        }
+
+        .date {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            color: #333;
+            font-weight: 800;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .venue {
+            font-family: 'Lato', sans-serif; /* Clean sans-serif for readability */
+            font-size: 11px;
+            color: #555;
+            margin-top: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-align: center;
+            line-height: 1.4;
+            /* Ensure it doesn't get too wide */
+            width: 70%; 
+        }
+
+        /* Canvas (Scratch Surface) */
+        canvas {
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 5;
+            cursor: pointer;
+            touch-action: none;
+            transition: opacity 0.8s ease-out;
+        }
+
+        /* Confetti Canvas (Overlay) */
+        #confettiCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Footer Section */
+        .footer-section {
+            text-align: center;
+            margin-bottom: 30px;
+            min-height: 60px;
+        }
+
+        .instruction {
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .reveal-message {
+            font-family: 'Great Vibes', cursive;
+            font-size: 24px;
+            color: #d4af37;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 1s ease;
+            display: none; /* remove from flow initially */
+        }
+        
+        .reveal-message.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes pulse { 0% {opacity: 0.5;} 50% {opacity: 1;} 100% {opacity: 0.5;} }
+
+    </style>
+</head>
+<body>
+
+    <div id="bg-particles"></div>
+
+    <canvas id="confettiCanvas"></canvas>
+
+    <div class="floral-frame">
+        <div class="corner tl">✾</div>
+        <div class="corner tr">✾</div>
+        <div class="corner bl">✾</div>
+        <div class="corner br">✾</div>
+
+        <div class="header-section">
+            <div class="title-text">Save the Date</div>
+        </div>
+
+        <div class="heart-wrapper">
+            <div class="heart-shape">
+                <div class="hidden-content">
+                    <div class="names-group">
+                        <div class="name">Kashish</div>
+                        <div class="ampersand">&</div>
+                        <div class="name">Prerna</div>
+                    </div>
+                    
+                    <div class="date">20 - 22 Feb 2026</div>
+                    
+                    <div class="venue">
+                        Ramada by Wyndham<br>Neemrana
+                    </div>
+                </div>
+
+                <canvas id="scratchCanvas" width="320" height="290"></canvas>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <div class="instruction" id="instructionText">Scratch to Reveal</div>
+            <div class="reveal-message" id="finalMessage">More to Come...</div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. Background Decoration Setup ---
+        const particleContainer = document.getElementById('bg-particles');
+        for(let i=0; i<15; i++){
+            let p = document.createElement('div');
+            p.innerHTML = "❤";
+            p.className = 'bg-particle';
+            p.style.left = Math.random() * 100 + "vw";
+            p.style.animationDuration = (Math.random() * 5 + 5) + "s";
+            p.style.animationDelay = "-" + (Math.random() * 10) + "s";
+            particleContainer.appendChild(p);
+        }
+
+        // --- 2. Scratch Card Setup ---
+        const canvas = document.getElementById('scratchCanvas');
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+        let isRevealed = false;
+
+        function initCard() {
+            // Gold Gradient Base
+            const grd = ctx.createLinearGradient(0, 0, width, height);
+            grd.addColorStop(0, "#DAA520");
+            grd.addColorStop(0.5, "#FFD700");
+            grd.addColorStop(1, "#B8860B");
+            ctx.fillStyle = grd;
+            ctx.fillRect(0, 0, width, height);
+
+            // Add Heavy Glitter
+            for (let i = 0; i < 2000; i++) {
+                const rand = Math.random();
+                if(rand > 0.95) ctx.fillStyle = "#FFFFFF"; // Sparkle
+                else if(rand > 0.5) ctx.fillStyle = "#FFC125"; // Light Gold
+                else ctx.fillStyle = "#8B6914"; // Dark Gold shadow
+                
+                const x = Math.random() * width;
+                const y = Math.random() * height;
+                const size = Math.random() * 2.5; 
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Overlay Text
+            ctx.shadowColor = "rgba(0,0,0,0.5)";
+            ctx.shadowBlur = 5;
+            ctx.fillStyle = "#FFF";
+            ctx.font = "bold 20px Cinzel";
+            ctx.textAlign = "center";
+            ctx.fillText("Scratch Here", width/2, height/2);
+            
+            // Add a little heart icon
+            ctx.font = "24px Arial";
+            ctx.fillText("❤️", width/2, height/2 + 30);
+        }
+        initCard();
+
+        // --- 3. Scratch Logic ---
+        let isDrawing = false;
+        function scratch(x, y) {
+            if (isRevealed) return;
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, 25, 0, Math.PI * 2);
+            ctx.fill();
+            checkReveal();
+        }
+
+        // --- 4. Auto Reveal & Celebration ---
+        let throttleTimer = null;
+        function checkReveal() {
+            if (throttleTimer) return;
+            throttleTimer = setTimeout(() => {
+                try {
+                    const imageData = ctx.getImageData(0, 0, width, height);
+                    const pixels = imageData.data;
+                    let transparent = 0;
+                    for (let i = 0; i < pixels.length; i += 200) {
+                        if (pixels[i + 3] < 128) transparent++;
+                    }
+                    if ((transparent / (pixels.length / 200)) > 0.35) {
+                        revealAll();
+                    }
+                } catch (e) {}
+                throttleTimer = null;
+            }, 150);
+        }
+
+        function revealAll() {
+            if (isRevealed) return;
+            isRevealed = true;
+            canvas.style.opacity = '0';
+            document.getElementById('instructionText').style.display = 'none';
+            
+            // Trigger Confetti
+            fireConfetti();
+
+            setTimeout(() => {
+                document.getElementById('finalMessage').classList.add('show');
+                setTimeout(() => canvas.style.display = 'none', 800);
+            }, 300);
+        }
+
+        // Input Handlers
+        const getPos = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        };
+
+        ['mousedown', 'touchstart'].forEach(evt => 
+            canvas.addEventListener(evt, (e) => { isDrawing = true; if(evt==='touchstart') isDrawing=true; }, {passive:false})
+        );
+        ['mouseup', 'touchend'].forEach(evt => 
+            canvas.addEventListener(evt, () => isDrawing = false)
+        );
+        ['mousemove', 'touchmove'].forEach(evt => 
+            canvas.addEventListener(evt, (e) => {
+                if (isDrawing) {
+                    e.preventDefault();
+                    const pos = getPos(e);
+                    scratch(pos.x, pos.y);
+                }
+            }, {passive:false})
+        );
+
+
+        // --- 5. Simple Confetti System (Visual Appeal) ---
+        const cCanvas = document.getElementById('confettiCanvas');
+        const cCtx = cCanvas.getContext('2d');
+        let particles = [];
+
+        function resizeConfetti() {
+            cCanvas.width = window.innerWidth;
+            cCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeConfetti);
+        resizeConfetti();
+
+        function fireConfetti() {
+            const colors = ['#d4af37', '#FFD700', '#c21e56', '#ffb7b2', '#FFF'];
+            for(let i=0; i<100; i++) {
+                particles.push({
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2,
+                    vx: (Math.random() - 0.5) * 15,
+                    vy: (Math.random() - 0.5) * 15 - 5,
+                    life: 100,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: Math.random() * 5 + 2
+                });
+            }
+            animateConfetti();
+        }
+
+        function animateConfetti() {
+            if(particles.length === 0) return;
+            cCtx.clearRect(0, 0, cCanvas.width, cCanvas.height);
+            
+            for(let i=0; i<particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2; // gravity
+                p.life--;
+                
+                cCtx.fillStyle = p.color;
+                cCtx.beginPath();
+                cCtx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                cCtx.fill();
+            }
+            // Remove dead particles
+            particles = particles.filter(p => p.life > 0);
+            requestAnimationFrame(animateConfetti);
+        }
+
+    </script>
+</body>
+</html>
